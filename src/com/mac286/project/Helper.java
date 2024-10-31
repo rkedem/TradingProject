@@ -1,63 +1,29 @@
 package com.mac286.project;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.Vector;
 
 public class Helper {
-    public static Vector<String> loadSymbols(String path, String file){
+    // Static method that accepts a path and a file name
+    // Opens the file (file symbols), reads it, and creates a Vector of strings of all symbols
+    public static Vector<String> loadSymbols(String path, String file) {
         Vector<String> symbols = new Vector<>();
-        try (BufferedReader br = new BufferedReader(new FileReader(path + "/" + file))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                symbols.add(line.trim());
-            }
-        } catch (IOException e) {
-            System.err.println("Error reading symbols file: " + e.getMessage());
-        }
+        // Implement the logic to open the file and read line by line
+        // Add each symbol to the Vector after trimming any whitespace
         return symbols;
     }
 
+    // Static method to compute statistics from a Vector of Trades
     public static Statistics computeStats(Vector<Trade> trades) {
         Statistics stats = new Statistics();
-        if (trades == null || trades.isEmpty()) {
-            return stats;
-        }
 
-        int totalTrades = trades.size();
-        int wins = 0;
-        int losses = 0;
-        float totalProfit = 0;
-        float maxProfit = Float.MIN_VALUE;
-        float maxLoss = Float.MAX_VALUE;
+        // Example of computing statistics:
+        // Loop through trades and calculate various statistics, such as average profit,
+        // win/loss percentages, etc., and set them in the `stats` object
 
-        for (Trade trade : trades) {
-            float tradeResult = trade.percentPL();
-            totalProfit += tradeResult;
-
-            if (tradeResult > 0) {
-                wins++;
-                maxProfit = Math.max(maxProfit, tradeResult);
-            } else {
-                losses++;
-                maxLoss = Math.min(maxLoss, tradeResult);
-            }
-        }
-
-        float winRate = (float) wins / totalTrades * 100;
-        float averageProfit = totalProfit / totalTrades;
-
-        stats.setTotalTrades(totalTrades);
-        stats.setWins(wins);
-        stats.setLosses(losses);
-        stats.setWinRate(winRate);
-        stats.setTotalProfit(totalProfit);
-        stats.setAverageProfit(averageProfit);
-        stats.setMaxProfit(maxProfit);
-        stats.setMaxLoss(maxLoss);
+        // Example (pseudo code, replace with actual logic):
+        // stats.averageProfit = calculateAverageProfit(trades);
+        // stats.winningPercent = calculateWinningPercentage(trades);
 
         return stats;
     }
 }
-

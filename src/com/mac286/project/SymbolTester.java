@@ -8,17 +8,18 @@ import java.util.Vector;
 public class SymbolTester {
     private float riskFactor;
     private String mSymbol;
-    private String dataPath;
+    private String dataPath = "C:\\Users\\rusha\\IdeaProjects\\TradingProject\\data\\";  // Updated path
+
     private Vector<Bar> mData;
     private Vector<Trade> mTrades;
     private boolean loaded = false;
 
-    public SymbolTester(String s, String p, float risk) {
+    public SymbolTester(String s, float risk) {
         this.riskFactor = risk;
         this.mSymbol = s;
-        this.dataPath = p;
-        this.mData = new Vector<>(3000, 100);
-        this.mTrades = new Vector<>(200, 100);
+        this.mData = new Vector<Bar>(3000, 100);
+        this.mTrades = new Vector<Trade>(200, 100);
+        this.loaded = false;
     }
 
     public Vector<Trade> getTrades() {
@@ -30,7 +31,7 @@ public class SymbolTester {
         try {
             FileReader fr = new FileReader(fileName);
             BufferedReader br = new BufferedReader(fr);
-            String line = br.readLine();
+            String line = br.readLine();  // Skip header line
             while ((line = br.readLine()) != null) {
                 Bar b = new Bar(line);
                 mData.add(b);
@@ -60,39 +61,43 @@ public class SymbolTester {
         return true;
     }
 
-    public void outcomes(Trade T, int ind) {
+    void outcomes(Trade T, int ind) {
         for (int i = ind; i < mData.size(); i++) {
             if (T.getDir() == Direction.LONG) {
                 if (mData.elementAt(i).getHigh() > T.getTarget()) {
                     if (mData.elementAt(i).getOpen() > T.getTarget()) {
                         T.close(mData.elementAt(i).getDate(), mData.elementAt(i).getOpen(), i - ind);
+                        return;
                     } else {
                         T.close(mData.elementAt(i).getDate(), T.getTarget(), i - ind);
+                        return;
                     }
-                    return;
                 } else if (mData.elementAt(i).getLow() < T.getStopLoss()) {
                     if (mData.elementAt(i).getOpen() < T.getStopLoss()) {
                         T.close(mData.elementAt(i).getDate(), mData.elementAt(i).getOpen(), i - ind);
+                        return;
                     } else {
                         T.close(mData.elementAt(i).getDate(), T.getStopLoss(), i - ind);
+                        return;
                     }
-                    return;
                 }
             } else {
                 if (mData.elementAt(i).getLow() <= T.getTarget()) {
                     if (mData.elementAt(i).getOpen() < T.getTarget()) {
                         T.close(mData.elementAt(i).getDate(), mData.elementAt(i).getOpen(), i - ind);
+                        return;
                     } else {
                         T.close(mData.elementAt(i).getDate(), T.getTarget(), i - ind);
+                        return;
                     }
-                    return;
                 } else if (mData.elementAt(i).getHigh() >= T.getStopLoss()) {
                     if (mData.elementAt(i).getOpen() > T.getStopLoss()) {
                         T.close(mData.elementAt(i).getDate(), mData.elementAt(i).getOpen(), i - ind);
+                        return;
                     } else {
                         T.close(mData.elementAt(i).getDate(), T.getStopLoss(), i - ind);
+                        return;
                     }
-                    return;
                 }
             }
         }
@@ -103,16 +108,16 @@ public class SymbolTester {
         if (!loaded) {
             loadData();
             if (!loaded) {
-                System.out.println("cannot load data");
+                System.out.println("Cannot load data");
                 return false;
             }
         }
 
-        for (int i = 10; i < mData.size() - 2; i++) {
-            if (xDaysLow(i, 20)
+        for (int i = 20; i < mData.size() - 2; i++) {
+            if (xDaysLow(i, 10)
                     && mData.elementAt(i).getLow() < mData.elementAt(i - 1).getLow()
                     && mData.elementAt(i).getHigh() > mData.elementAt(i - 1).getHigh()
-                    && (mData.elementAt(i).getHigh() - mData.elementAt(i).getClose()) / mData.elementAt(i).range() < 0.1) {
+                    && (mData.elementAt(i).getHigh() - mData.elementAt(i).getClose()) / (mData.elementAt(i).range()) < 0.1) {
                 float entryprice = mData.elementAt(i + 1).getOpen();
                 float stoploss = mData.elementAt(i).getLow() - 0.01f;
                 float risk = entryprice - stoploss;
@@ -121,10 +126,10 @@ public class SymbolTester {
                 T.open(mSymbol, mData.elementAt(i + 1).getDate(), entryprice, stoploss, target, Direction.LONG);
                 outcomes(T, i + 1);
                 mTrades.add(T);
-            } else if (xDaysHigh(i, 20)
+            } else if (xDaysHigh(i, 10)
                     && mData.elementAt(i).getHigh() > mData.elementAt(i - 1).getHigh()
                     && mData.elementAt(i).getLow() < mData.elementAt(i - 1).getLow()
-                    && (mData.elementAt(i).getClose() - mData.elementAt(i).getLow()) / mData.elementAt(i).range() < 0.1) {
+                    && (mData.elementAt(i).getClose() - mData.elementAt(i).getLow()) / (mData.elementAt(i).getHigh() - mData.elementAt(i).getLow()) < 0.1) {
                 float entryprice = mData.elementAt(i + 1).getOpen();
                 float stoploss = mData.elementAt(i).getHigh() + 0.01f;
                 float risk = stoploss - entryprice;
@@ -135,7 +140,6 @@ public class SymbolTester {
                 mTrades.add(T);
             }
         }
-
         return true;
     }
 }

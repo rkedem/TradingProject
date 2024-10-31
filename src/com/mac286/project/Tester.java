@@ -12,26 +12,21 @@ public class Tester {
         this.mPath = path;
         this.mFile = file;
         this.riskFactor = risk;
-        this.vSymbols = Helper.loadSymbols(mPath, mFile);
-        this.mTrades = new Vector<>();
+        this.vSymbols = Helper.loadSymbols(path, file);
+        this.mTrades = new Vector<Trade>();
     }
 
     public boolean run() {
         if (vSymbols == null || vSymbols.isEmpty()) {
-            vSymbols = Helper.loadSymbols(mPath, mFile);
-            if (vSymbols == null || vSymbols.isEmpty()) {
-                System.out.println("No symbols loaded. Exiting...");
-                return false;
-            }
-        }
-        if (mTrades == null) {
-            mTrades = new Vector<>();
+            System.out.println("No symbols to test.");
+            return false;
         }
 
         for (String symbol : vSymbols) {
-            SymbolTester symbolTester = new SymbolTester(symbol, mPath, riskFactor);
-            if (symbolTester.test()) {
-                mTrades.addAll(symbolTester.getTrades());
+            SymbolTester tester = new SymbolTester(symbol, riskFactor);
+            tester.loadData();
+            if (tester.test()) {
+                mTrades.addAll(tester.getTrades());
             }
         }
         return true;
@@ -42,8 +37,7 @@ public class Tester {
     }
 
     public void reset() {
-        vSymbols = null;
-        mTrades = null;
+        vSymbols.clear();
+        mTrades.clear();
     }
 }
-
