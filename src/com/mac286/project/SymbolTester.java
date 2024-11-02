@@ -8,7 +8,7 @@ import java.util.Vector;
 public class SymbolTester {
     private float riskFactor;
     private String mSymbol;
-    private String dataPath = "C:\\Users\\rusha\\IdeaProjects\\TradingProject\\data\\";  // Updated path
+    private String dataPath = "C:\\Users\\rusha\\IdeaProjects\\TradingProject\\data\\"; 
 
     private Vector<Bar> mData;
     private Vector<Trade> mTrades;
