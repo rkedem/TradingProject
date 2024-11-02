@@ -1,0 +1,30 @@
+name: Trading Project CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up JDK
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'adopt'
+          java-version: '17'  # Replace with the Java version your project uses
+
+      - name: Build with Gradle or Maven
+        run: |
+          ./gradlew build  # Uncomment if using Gradle
+          # mvn install  # Uncomment if using Maven
+
+      - name: Run the Java program
+        run: |
+          java -classpath build/classes/java/main com.mac286.project.Main
