@@ -18,13 +18,9 @@ jobs:
         uses: actions/setup-java@v2
         with:
           distribution: 'adopt'
-          java-version: '17'  
+          java-version: '17'  # Adjust this if using a different version
 
-      - name: Build with Gradle or Maven
+      - name: Compile and Run Java Program
         run: |
-          ./gradlew build  # Uncomment if using Gradle
-          # mvn install  # Uncomment if using Maven
-
-      - name: Run the Java program
-        run: |
-          java -classpath build/classes/java/main com.mac286.project.Main
+          javac -d out src/com/mac286/project/*.java
+          java -classpath out com.mac286.project.Main
